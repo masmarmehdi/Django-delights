@@ -1,7 +1,37 @@
 from django.db.models import Sum
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from .models import *
+from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic.edit import CreateView
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import redirect
 
+class RegisterView(CreateView):
+    form_class = UserCreationForm
+    template_name = 'auth/register.html'
+    success_url = '/'
+
+    def get(self, request, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect('/')
+        return super().get(request, *args, **kwargs)
+
+class LoginInterfaceView(LoginView):
+    template_name = 'auth/login.html'
+
+class LogoutInterfaceView(LogoutView):
+    template_name = 'auth/logout.html'
+
+
+class HomeListView(TemplateView):
+    template_name = 'inventory/home.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ingredients"] = Ingredient.objects.all()
+        context["menu_items"] = MenuItem.objects.all() 
+        context["purchases"] = Purchase.objects.all() 
+        return context
+    
 class IngredientListView(ListView):
     model = Ingredient
     context_object_name = 'ingredients'
