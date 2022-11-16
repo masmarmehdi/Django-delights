@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <title>Login</title>
+{% endblock %}
+{% block content %}
+<div style="text-align:center;margin:20px;">
+  <img width="300px" height="auto" src="{% static 'images/logo.png' %}"alt="logo">
+  <h2>Log In</h2>
+</div>
+<form method="post" style="text-align:center;margin:0 auto;width:600px">
+  {{ form.non_field_errors }}
+  <div class="form-group">
+    {% csrf_token %}
+    <div class="form-outline mb-4">
+      {{ form.username.errors }}
+      {% comment %} <input type="text" id="{{ from.username.id_for_label }}" class="form-control" /> {% endcomment %}
+      <label class="form-label" for="{{ from.username.id_for_label }}">Username</label>
+      {{ form.username }}
+    </div>
+    <!-- Password input -->
+    <div class="form-outline mb-4">
+      {{ form.password.errors }}
+      {% comment %} <input type="password" id="{{ from.password.id_for_label }}" class="form-control" /> {% endcomment %}
+      <label class="form-label" for="{{ from.password.id_for_label }}">Password</label>
+      {{ form.password }}
+    </div>
+
+    <!-- Submit button -->
+      <button type="submit" class="btn btn-primary mb-2 col-md-6">Login</button>
+    <!-- Register buttons -->
+    <div class="text-center">
+      <p>Not a member? <a href="{% url 'register' %}">Register</a></p>
+    </div>
+  </div>
+</form>
+{% endblock %}
+<form>
+  <!-- Email input -->
+  
+</form>
