@@ -11,5 +11,6 @@ urlpatterns = [
     path('login/', LoginInterfaceView.as_view(), name='login'),
     path('logout/', LogoutInterfaceView.as_view(), name='logout'),
     path('ingredients/create', IngredientCreateView.as_view(), name='create-ingredient'),
-    path('ingredients/edit/<int:ingredient_id>', IngredientUpdate.as_view(), name='update-ingredient')
+    path('ingredients/edit/<int:pk>', IngredientUpdateView.as_view(), name='update-ingredient'),
+    path('ingredients/delete/<int:pk>', IngredientDeleteView.as_view(), name='delete-ingredient')
 ]
