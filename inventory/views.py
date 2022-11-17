@@ -1,10 +1,28 @@
 from django.db.models import Sum
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, UpdateView, DeleteView
 from .models import *
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, DeleteView
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect
+from .forms import *
+
+class IngredientDeleteView(DeleteView):
+    model = Ingredient
+    template_name = 'inventory/ingredient_delete.html'
+    success_url = '/ingredients'
+
+class IngredientCreateView(CreateView):
+    model = Ingredient
+    form_class = IngredientForm
+    success_url = '/ingredients'
+
+class IngredientUpdateView(UpdateView):
+    model = Ingredient
+    form_class = IngredientForm
+    context_object_name = 'ingredients'
+    success_url = '/ingredients'
+
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
@@ -30,6 +48,7 @@ class HomeListView(TemplateView):
         context["ingredients"] = Ingredient.objects.all()
         context["menu_items"] = MenuItem.objects.all() 
         context["purchases"] = Purchase.objects.all() 
+        context['recipe_requirements'] = RecipeRequirement.objects.all()
         return context
     
 class IngredientListView(ListView):
