@@ -58,9 +58,59 @@ class IngredientListView(ListView):
 class MenuItemListView(ListView):
     model = MenuItem
     context_object_name = 'menu_items'
+
+class MenuItemCreateView(CreateView):
+    model = MenuItem
+    form_class = MenuItemForm
+    success_url = '/menu-items'
+
+class MenuItemUpdateView(UpdateView):
+    model = MenuItem
+    form_class = MenuItemForm
+    success_url = '/menu-items'
+
+class MenuItemDeleteView(DeleteView):
+    model = MenuItem
+    template_name = 'inventory/menuitem_delete.html'
+    success_url = '/menu-items'
+
+
 class RecipeRequirementListView(ListView):
     model = RecipeRequirement
     context_object_name = 'recipe_requirements'
+
+class RecipeRequirementCreateView(CreateView):
+    model = RecipeRequirement
+    form_class = RecipeRequirementForm
+    success_url = '/recipe-requirements'
+
+class RecipeRequirementUpdateView(UpdateView):
+    model = RecipeRequirement
+    form_class = RecipeRequirementForm
+    success_url = '/recipe-requirements'
+
+class RecipeRequirementDeleteView(DeleteView):
+    model = RecipeRequirement
+    template_name = 'inventory/reciperequirement_delete.html'
+    success_url = '/recipe-requirements'
+
+class PurchaseCreateView(CreateView):
+    model = Purchase
+    form_class = PurchaseForm
+    success_url = '/purchases'
+    def post(self, request):
+        menu_item_id = request.POST["menu_item"]
+        menu_item = MenuItem.objects.get(pk=menu_item_id)
+        requirements = menu_item.reciperequirement_set
+        purchase = Purchase(menu_item=menu_item)
+
+        for requirement in requirements.all():
+            required_ingredient = requirement.ingredient
+            required_ingredient.quantity -= requirement.quantity
+            required_ingredient.save()
+
+        purchase.save()
+        return redirect("/purchases")
 
 class PurchaseListView(ListView):
     model = Purchase
@@ -68,19 +118,15 @@ class PurchaseListView(ListView):
     context_object_name = 'purchases'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cost = 0
-        profit = 0
-        revenue = 0
-        purchase = Purchase.objects.all()
-        quantity_used = RecipeRequirement.objects.all()
+        context["purchases"] = Purchase.objects.all()
+        revenue = Purchase.objects.aggregate(
+            revenue=Sum("menu_item__price"))["revenue"]
+        total_cost = 0
+        for purchase in Purchase.objects.all():
+            for recipe_requirement in purchase.menu_item.reciperequirement_set.all():
+                total_cost += recipe_requirement.ingredient.unit_price * recipe_requirement.quantity
 
-        for recipe in quantity_used:
-            cost += recipe.ingredient.unit_price * recipe.quantity
-        for item in purchase:
-            revenue += item.menu_item.price
-
-        profit = revenue - cost * purchase.count()
-        context['revenue'] = revenue
-        context['cost'] = cost * purchase.count()
-        context['profit'] = profit
+        context["revenue"] = revenue
+        context["total_cost"] = total_cost
+        context["profit"] = revenue - total_cost
         return context
