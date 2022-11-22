@@ -12,9 +12,11 @@
                 <a class="navbar-brand" href="{% url 'home' %}">Django delights</a>
             </div>
             <div>
-                <a href="{% url 'ingredients' %}"><button class="btn btn-primary">Ingredients</button></a>
+                <a href="{% url 'ingredients' %}"><button class="btn btn-dark text-light">Ingredients</button></a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'purchases' %}"><button class="btn btn-primary">Purchases</button></a>
+                    <a href="{% url 'purchases' %}"><button class="btn btn-dark text-light">Purchases</button></a>
+                    <a href="{% url 'menu-items' %}"><button class="btn btn-dark text-light">Menu items</button></a>
+                    <a href="{% url 'recipe-requirements' %}"><button class="btn btn-dark text-light">Recipe requirement</button></a>
                 {% endif %}
             </div>
             <div class="right-navbar">
