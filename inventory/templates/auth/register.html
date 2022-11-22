@@ -1,9 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block head %}
   <title>Register</title>
 {% endblock %}
 {% block content %}
-<h2 style="text-align:center;margin:20px;">Register</h2>
+<div style="text-align:center;margin:20px;">
+  <img width="300px" height="auto" src="{% static 'images/logo.png' %}"alt="logo">
+  <h2>Register</h2>
+</div>
 <form method="post" style="text-align:center;margin:0 auto;width:600px">
   {% csrf_token %}
   {{ form.as_p }}
