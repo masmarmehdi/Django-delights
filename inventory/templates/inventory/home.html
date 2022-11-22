@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <title>Home page</title>
+{% endblock %}
+
+{% block content %}
+<div class="bg-secondary text-light text-center p-5">
+    <h1>Welcome to Django-delights!</h1>
+</div>
+<div class="card bg-secondary" style="width:90%;text-align:center;display:inline;justify-content:center;">
+    <div>
+        <h1 style="margin:30px;text-align:center;">Here are The menus!<br> Feel free to check them out!</h1>
+    </div>
+    <div class='col-md-12'>
+        <div class="row">
+            {% for item in menu_items%}
+            <div class="col-sm-4">
+            <div class="card bg-dark mb-3">
+                <div class="card-body">
+                <h5 class="card-title text-light m-2">{{ item.title }}</h5>
+                <p class="card-text text-light">{{item.price}}$</p>
+                <div class="card text-center">
+                    <p class="card-title m-2"><b>Ingredients:</b></p>
+                    {% for item_recipe in recipe_requirements %}
+                        {% if item.title == item_recipe.menu_item.title %}
+                            <p class="card-text m-2">{{item_recipe.ingredient}} ({{item_recipe.quantity}} {{item_recipe.ingredient.unit}})</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

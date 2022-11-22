@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Ingredient form</title>
+{% endblock %}
+{% block content %}
+    <div style="margin:10px auto;text-align:center;">
+        {% if form.errors %}
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <p class="alert alert-danger text-center col-md-4">{{field}} : {{error}}</p>
+                    {% endfor %}
+                {% endfor %}
+        {% endif %}
+    </div>
+        <div style="margin:10px auto;text-align:center;">
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.auto_id }}"><b>{{ field.label }}</b></label>
+                    {{field}}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-success col-md-4">Create</button>
+        </form>
+        <a href="{% url 'menu-items' %}"><button type="submit" class="btn btn-danger col-md-4">Cancel</button></a>
+    </div>
+{% endblock  %}
