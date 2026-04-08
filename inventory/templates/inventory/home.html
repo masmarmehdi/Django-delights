@@ -2,69 +2,141 @@
 {% load static %}
 
 {% block head %}
-    <title>Django Delights</title>
+    <title>Django Delights — Fine Dining</title>
 {% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <h1><i class="bi bi-cup-hot-fill mr-2"></i>Django Delights</h1>
-    <p>Your restaurant's inventory &amp; sales tracker</p>
-    {% if not user.is_authenticated %}
-    <a href="{% url 'login' %}" class="btn btn-light btn-lg mr-2">
-        <i class="bi bi-box-arrow-in-right mr-1"></i>Login
-    </a>
-    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">
-        <i class="bi bi-person-plus-fill mr-1"></i>Register
-    </a>
-    {% else %}
-    <a href="{% url 'create-purchase' %}" class="btn btn-success btn-lg">
-        <i class="bi bi-plus-circle-fill mr-1"></i>Record a Purchase
-    </a>
-    {% endif %}
-</div>
 
-<div class="container mt-4">
-    <h4 class="mb-3 font-weight-bold text-center" style="color:#495464;">
-        <i class="bi bi-grid-fill mr-2"></i>Our Menu
-    </h4>
-    {% if menu_items %}
-    <div class="row">
-        {% for item in menu_items %}
-        <div class="col-sm-6 col-md-4 mb-4">
-            <div class="card menu-card">
-                <div class="card-header d-flex justify-content-between align-items-start">
-                    <h5 class="mb-0">{{ item.title }}</h5>
-                    {% if item.available %}
-                        <span class="badge-available ml-2">Available</span>
-                    {% else %}
-                        <span class="badge-unavailable ml-2">Low stock</span>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    <span class="price-badge">${{ item.price }}</span>
-                    <hr>
-                    <p class="text-muted mb-1" style="font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Ingredients</p>
-                    <ul class="ingredient-list">
-                        {% for req in recipe_requirements %}
-                            {% if req.menu_item.id == item.id %}
-                            <li>
-                                <i class="bi bi-dot"></i>
-                                {{ req.ingredient.name }}
-                                <span class="text-muted">({{ req.quantity }} {{ req.ingredient.unit }})</span>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+<!-- ── HERO ── -->
+<section class="restaurant-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-body">
+        <p class="hero-eyebrow">Est. 2022 &nbsp;·&nbsp; Handcrafted with Passion</p>
+        <h1 class="hero-title">Django<br><span class="hero-title-accent">Delights</span></h1>
+        <div class="hero-divider"><span></span><i class="bi bi-flower1"></i><span></span></div>
+        <p class="hero-tagline">A curated dining experience built on the finest ingredients</p>
+        {% if not user.is_authenticated %}
+        <div class="hero-cta">
+            <a href="{% url 'login' %}" class="btn-restaurant btn-restaurant-primary">
+                <i class="bi bi-box-arrow-in-right mr-2"></i>Staff Login
+            </a>
+            <a href="{% url 'register' %}" class="btn-restaurant btn-restaurant-outline">
+                Register
+            </a>
+        </div>
+        {% else %}
+        <div class="hero-cta">
+            <a href="{% url 'create-purchase' %}" class="btn-restaurant btn-restaurant-primary">
+                <i class="bi bi-plus-circle mr-2"></i>Record a Sale
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ── HIGHLIGHTS STRIP ── -->
+<section class="highlights-strip">
+    <div class="highlight-item">
+        <i class="bi bi-award-fill"></i>
+        <span>Quality Ingredients</span>
+    </div>
+    <div class="highlight-sep">·</div>
+    <div class="highlight-item">
+        <i class="bi bi-clock-fill"></i>
+        <span>Open Daily 11am – 10pm</span>
+    </div>
+    <div class="highlight-sep">·</div>
+    <div class="highlight-item">
+        <i class="bi bi-geo-alt-fill"></i>
+        <span>Downtown District</span>
+    </div>
+    <div class="highlight-sep">·</div>
+    <div class="highlight-item">
+        <i class="bi bi-telephone-fill"></i>
+        <span>Reservations Welcome</span>
+    </div>
+</section>
+
+<!-- ── MENU SECTION ── -->
+<section class="menu-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-eyebrow">Crafted daily</p>
+            <h2 class="section-title">Our Menu</h2>
+            <div class="section-divider"><span></span><i class="bi bi-flower1"></i><span></span></div>
+        </div>
+
+        {% if menu_items %}
+        <div class="row justify-content-center">
+            {% for item in menu_items %}
+            <div class="col-sm-6 col-lg-4 mb-5">
+                <div class="dish-card {% if not item.available %}dish-card--unavailable{% endif %}">
+                    <div class="dish-card__icon">
+                        <i class="bi bi-cup-hot"></i>
+                    </div>
+                    <div class="dish-card__body">
+                        <div class="d-flex justify-content-between align-items-baseline mb-1">
+                            <h5 class="dish-card__title">{{ item.title }}</h5>
+                            <span class="dish-card__price">${{ item.price }}</span>
+                        </div>
+                        <div class="dish-card__dots"></div>
+                        <p class="dish-card__label">Ingredients</p>
+                        <ul class="dish-ingredient-list">
+                            {% for req in recipe_requirements %}
+                                {% if req.menu_item.id == item.id %}
+                                <li>
+                                    <span class="dish-dot">&#x2022;</span>
+                                    {{ req.ingredient.name }}
+                                    <span class="dish-qty">({{ req.quantity }} {{ req.ingredient.unit }})</span>
+                                </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="dish-card__footer">
+                        {% if item.available %}
+                            <span class="dish-status dish-status--available">
+                                <i class="bi bi-check-circle-fill mr-1"></i>Available
+                            </span>
+                        {% else %}
+                            <span class="dish-status dish-status--unavailable">
+                                <i class="bi bi-x-circle-fill mr-1"></i>Currently unavailable
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-journal-x"></i>
+            <h5>The menu is being prepared</h5>
+            {% if user.is_authenticated %}
+            <p class="text-muted">
+                <a href="{% url 'create-menu_items' %}">Add your first menu item</a> to get started.
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="empty-state">
-        <i class="bi bi-journal-x"></i>
-        <p>No menu items yet. <a href="{% url 'create-menu_items' %}">Add your first item!</a></p>
+</section>
+
+<!-- ── FOOTER BAND ── -->
+<footer class="restaurant-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center">
+        <div class="footer-brand">
+            <i class="bi bi-cup-hot-fill mr-2"></i>Django Delights
+        </div>
+        <div class="footer-links">
+            <a href="{% url 'ingredients' %}">Inventory</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'menu-items' %}">Menu Items</a>
+            <a href="{% url 'purchases' %}">Purchases</a>
+            {% endif %}
+        </div>
+        <div class="footer-copy">&copy; 2022 Django Delights. All rights reserved.</div>
     </div>
-    {% endif %}
-</div>
+</footer>
+
 {% endblock %}
