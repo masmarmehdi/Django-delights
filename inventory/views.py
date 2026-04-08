@@ -3,8 +3,8 @@ from django.views.generic import ListView, TemplateView, UpdateView, DeleteView
 from .models import *
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.edit import CreateView, DeleteView
-from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect
+from django.contrib import messages
 from .forms import *
 
 class IngredientDeleteView(DeleteView):
@@ -25,7 +25,7 @@ class IngredientUpdateView(UpdateView):
 
 
 class RegisterView(CreateView):
-    form_class = UserCreationForm
+    form_class = BootstrapUserCreationForm
     template_name = 'auth/register.html'
     success_url = '/'
 
@@ -36,6 +36,7 @@ class RegisterView(CreateView):
 
 class LoginInterfaceView(LoginView):
     template_name = 'auth/login.html'
+    authentication_form = BootstrapAuthenticationForm
 
 class LogoutInterfaceView(LogoutView):
     template_name = 'auth/logout.html'
@@ -98,29 +99,42 @@ class PurchaseCreateView(CreateView):
     model = Purchase
     form_class = PurchaseForm
     success_url = '/purchases'
+
     def post(self, request):
-        menu_item_id = request.POST["menu_item"]
-        menu_item = MenuItem.objects.get(pk=menu_item_id)
+        menu_item_id = request.POST.get("menu_item")
+        if not menu_item_id:
+            messages.error(request, "Please select a menu item.")
+            return redirect("/purchases/create")
+        try:
+            menu_item = MenuItem.objects.get(pk=menu_item_id)
+        except MenuItem.DoesNotExist:
+            messages.error(request, "Invalid menu item selected.")
+            return redirect("/purchases/create")
+
+        if not menu_item.available():
+            messages.error(request, f"Not enough ingredients to make '{menu_item.title}'. Please check your inventory.")
+            return redirect("/purchases/create")
+
         requirements = menu_item.reciperequirement_set
         purchase = Purchase(menu_item=menu_item)
-
         for requirement in requirements.all():
             required_ingredient = requirement.ingredient
             required_ingredient.quantity -= requirement.quantity
             required_ingredient.save()
-
         purchase.save()
+        messages.success(request, f"Purchase of '{menu_item.title}' recorded successfully!")
         return redirect("/purchases")
 
 class PurchaseListView(ListView):
     model = Purchase
-    template_name = 'purchases.html'
+    template_name = 'inventory/purchase_list.html'
     context_object_name = 'purchases'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["purchases"] = Purchase.objects.all()
+        context["purchases"] = Purchase.objects.all().order_by('-timestamp')
         revenue = Purchase.objects.aggregate(
-            revenue=Sum("menu_item__price"))["revenue"]
+            revenue=Sum("menu_item__price"))["revenue"] or 0
         total_cost = 0
         for purchase in Purchase.objects.all():
             for recipe_requirement in purchase.menu_item.reciperequirement_set.all():
