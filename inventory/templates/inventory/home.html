@@ -2,39 +2,69 @@
 {% load static %}
 
 {% block head %}
-    <title>Home page</title>
+    <title>Django Delights</title>
 {% endblock %}
 
 {% block content %}
-<div class="bg-secondary text-light text-center p-5">
-    <h1>Welcome to Django-delights!</h1>
-</div>
-<div class="card bg-secondary" style="width:90%;text-align:center;display:inline;justify-content:center;">
-    <div>
-        <h1 style="margin:30px;text-align:center;">Here are The menus!<br> Feel free to check them out!</h1>
-    </div>
-    <div class='col-md-12'>
-        <div class="row">
-            {% for item in menu_items%}
-            <div class="col-sm-4">
-            <div class="card bg-dark mb-3">
-                <div class="card-body">
-                <h5 class="card-title text-light m-2">{{ item.title }}</h5>
-                <p class="card-text text-light">{{item.price}}$</p>
-                <div class="card text-center">
-                    <p class="card-title m-2"><b>Ingredients:</b></p>
-                    {% for item_recipe in recipe_requirements %}
-                        {% if item.title == item_recipe.menu_item.title %}
-                            <p class="card-text m-2">{{item_recipe.ingredient}} ({{item_recipe.quantity}} {{item_recipe.ingredient.unit}})</p>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-                </div>
-            </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+<div class="hero-section">
+    <h1><i class="bi bi-cup-hot-fill mr-2"></i>Django Delights</h1>
+    <p>Your restaurant's inventory &amp; sales tracker</p>
+    {% if not user.is_authenticated %}
+    <a href="{% url 'login' %}" class="btn btn-light btn-lg mr-2">
+        <i class="bi bi-box-arrow-in-right mr-1"></i>Login
+    </a>
+    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-person-plus-fill mr-1"></i>Register
+    </a>
+    {% else %}
+    <a href="{% url 'create-purchase' %}" class="btn btn-success btn-lg">
+        <i class="bi bi-plus-circle-fill mr-1"></i>Record a Purchase
+    </a>
+    {% endif %}
 </div>
 
+<div class="container mt-4">
+    <h4 class="mb-3 font-weight-bold text-center" style="color:#495464;">
+        <i class="bi bi-grid-fill mr-2"></i>Our Menu
+    </h4>
+    {% if menu_items %}
+    <div class="row">
+        {% for item in menu_items %}
+        <div class="col-sm-6 col-md-4 mb-4">
+            <div class="card menu-card">
+                <div class="card-header d-flex justify-content-between align-items-start">
+                    <h5 class="mb-0">{{ item.title }}</h5>
+                    {% if item.available %}
+                        <span class="badge-available ml-2">Available</span>
+                    {% else %}
+                        <span class="badge-unavailable ml-2">Low stock</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="price-badge">${{ item.price }}</span>
+                    <hr>
+                    <p class="text-muted mb-1" style="font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Ingredients</p>
+                    <ul class="ingredient-list">
+                        {% for req in recipe_requirements %}
+                            {% if req.menu_item.id == item.id %}
+                            <li>
+                                <i class="bi bi-dot"></i>
+                                {{ req.ingredient.name }}
+                                <span class="text-muted">({{ req.quantity }} {{ req.ingredient.unit }})</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <p>No menu items yet. <a href="{% url 'create-menu_items' %}">Add your first item!</a></p>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
