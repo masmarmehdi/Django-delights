@@ -1,19 +1,41 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block head %}
-  <title>Register</title>
+    <title>Register — Django Delights</title>
 {% endblock %}
+
 {% block content %}
-<div style="text-align:center;margin:20px;">
-  <img width="300px" height="auto" src="{% static 'images/logo.png' %}"alt="logo">
-  <h2>Register</h2>
+<div class="container">
+    <div class="form-card">
+        <div class="text-center mb-4">
+            <img class="auth-logo" src="{% static 'images/logo.png' %}" alt="Django Delights logo">
+            <div class="form-title mb-0">Create Account</div>
+            <p class="text-muted small">Join Django Delights</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label class="font-weight-bold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors }}</div>
+                {% endif %}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">
+                <i class="bi bi-person-plus-fill mr-1"></i>Register
+            </button>
+        </form>
+
+        <hr>
+        <p class="text-center text-muted mb-0">
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </p>
+    </div>
 </div>
-<form method="post" style="text-align:center;margin:0 auto;width:600px">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-primary">Register</button>
-  <div class="text-center">
-    <p>Already a member? <a href="{% url 'login' %}">Login</a></p>
-  </div>
-</form>
 {% endblock %}
