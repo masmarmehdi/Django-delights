@@ -1,59 +1,88 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <title>Purchases</title>
+    <title>Purchases — Django Delights</title>
 {% endblock %}
 
 {% block content %}
-<div style="text-align:center; margin:20px;">
-    <h1>Purchases</h1>
+<div class="page-header">
+    <h1><i class="bi bi-receipt mr-2"></i>Purchases</h1>
+    <p class="mb-0 text-white-50">Log of all customer purchases</p>
+</div>
+
+<div class="container">
     {% if user.is_authenticated %}
-        <a href="{% url 'create-purchase' %}"><button class="btn btn-primary">Add a new purchase</button></a>
+    <div class="text-center mb-4">
+        <a href="{% url 'create-purchase' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle-fill mr-1"></i>Record New Purchase
+        </a>
+    </div>
+    {% endif %}
+
+    {% if purchases %}
+    <!-- Summary Stats -->
+    <div class="stat-row mb-4">
+        <div class="stat-card">
+            <div class="stat-label">Revenue</div>
+            <div class="stat-value text-primary">${{ revenue|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Cost</div>
+            <div class="stat-value text-danger">${{ total_cost|floatformat:2 }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Profit</div>
+            <div class="stat-value {% if profit >= 0 %}text-success{% else %}text-danger{% endif %}">
+                ${{ profit|floatformat:2 }}
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value text-secondary">{{ purchases|length }}</div>
+        </div>
+    </div>
+
+    <!-- Purchases Table -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="app-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Menu Item</th>
+                            <th>Price</th>
+                            <th>Date &amp; Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in purchases %}
+                        <tr>
+                            <td class="text-muted">{{ item.id }}</td>
+                            <td><strong>{{ item.menu_item.title }}</strong></td>
+                            <td class="text-success font-weight-bold">${{ item.menu_item.price }}</td>
+                            <td class="text-muted">
+                                <i class="bi bi-clock mr-1"></i>
+                                {{ item.timestamp|date:"N j, Y" }}
+                                <span class="ml-1">{{ item.timestamp|time:"P" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-receipt"></i>
+        <h5>No purchases recorded yet</h5>
+        {% if user.is_authenticated %}
+        <p class="text-muted">Click "Record New Purchase" to log your first sale.</p>
+        {% else %}
+        <p class="text-muted"><a href="{% url 'login' %}">Log in</a> to start recording purchases.</p>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
-<div class='row justify-content-center'>
-    <div class='col-md-6'>
-        <table class="table table-light" style="text-align:center;">
-            <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Product</th>
-                <th scope="col">Price</th>
-            </tr>
-            </thead>
-            <tbody>
-                {% for item in purchases %}
-                <tr>
-                    <td>{{item.id}}</td>
-                    <td>{{item}}</td>
-                    <td>{{item.menu_item.price}} $</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="2" align="right">
-                        <b>Revenue:</b>
-                    </td>
-                    <td class="text-primary"><b>{{revenue}} $</b></td>
-                </tr>
-                <tr scope="row">
-                    <td colspan="2" align="right">
-                        <b>Cost:</b>
-                    </td>
-                    <td colspane="3" class="text-danger"><b>{{total_cost|floatformat:2}} $</b></td>
-                </tr>
-                <tr scope="row">
-                    <td colspan="2" align="right">
-                        <b>Profit:</b>
-                    </td>
-                    <td class="text-success"><b>{{profit|floatformat:2}} $</b></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-</div>
-
-
-
 {% endblock %}
