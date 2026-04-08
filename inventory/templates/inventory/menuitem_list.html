@@ -1,40 +1,77 @@
 {% extends 'base.html' %}
 {% block head %}
-    <title>Menu items</title>
-{% endblock  %}
+    <title>Menu Items — Django Delights</title>
+{% endblock %}
+
 {% block content %}
-<div style="text-align:center;margin:20px">
-    <h1>All Menu items available in the store</h1>
+<div class="page-header">
+    <h1><i class="bi bi-menu-button-wide-fill mr-2"></i>Menu Items</h1>
+    <p class="mb-0 text-white-50">Manage your restaurant's menu</p>
+</div>
+
+<div class="container">
     {% if user.is_authenticated %}
-        <a href="{% url 'create-menu_items' %}"><button class="btn btn-primary">Add a new Menu item</button></a>
+    <div class="text-center mb-4">
+        <a href="{% url 'create-menu_items' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle-fill mr-1"></i>Add New Menu Item
+        </a>
+    </div>
+    {% endif %}
+
+    {% if menu_items %}
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="app-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            {% if user.is_authenticated %}
+                            <th class="text-center">Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in menu_items %}
+                        <tr>
+                            <td class="text-muted">{{ item.id }}</td>
+                            <td><strong>{{ item.title }}</strong></td>
+                            <td class="text-success font-weight-bold">${{ item.price }}</td>
+                            <td>
+                                {% if item.available %}
+                                    <span class="badge-available"><i class="bi bi-check-circle-fill mr-1"></i>Available</span>
+                                {% else %}
+                                    <span class="badge-unavailable"><i class="bi bi-x-circle-fill mr-1"></i>Low stock</span>
+                                {% endif %}
+                            </td>
+                            {% if user.is_authenticated %}
+                            <td class="text-center">
+                                <a href="{% url 'update-menu_items' item.id %}" class="btn btn-sm btn-outline-primary mr-1">
+                                    <i class="bi bi-pencil-fill"></i> Edit
+                                </a>
+                                <a href="{% url 'delete-menu_items' item.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash-fill"></i> Delete
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <h5>No menu items yet</h5>
+        {% if user.is_authenticated %}
+        <p class="text-muted">Click "Add New Menu Item" to get started.</p>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
-<div class='row justify-content-center'>
-    <div class='col-md-6'>
-    <table class="table table-light" style="text-align:center">
-        <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Product</th>
-              <th scope="col">Price</th>
-              <th scope="col">Edit</th>
-              <th scope="col">Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-        {% for item in menu_items %}
-        <tr>
-            <th scope="row">{{item.id}}</th>
-            <td>{{ item}}</td>
-            <td>{{ item.price }} $</td>
-            <td><a href="{% url 'update-menu_items' item.id %}"><button class="btn btn-primary">Update</button></a></td>
-            <td><a href="{% url 'delete-menu_items' item.id %}"><button class="btn btn-danger">Delete</button></a></td>
-        </tr>
-
-        {% endfor %}
-    </tbody>
-    </table>
-</div>
-</div>
-</div>
-{% endblock  %}
+{% endblock %}
