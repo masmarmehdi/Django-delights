@@ -1,42 +1,76 @@
 {% extends 'base.html' %}
 {% block head %}
-    <title>Ingredients</title>
-{% endblock  %}
+    <title>Recipes — Django Delights</title>
+{% endblock %}
+
 {% block content %}
-<div style="text-align:center;margin:20px">
-    <h1>All recipe requirement for each menu item are available here</h1>
+<div class="page-header">
+    <h1><i class="bi bi-journal-text mr-2"></i>Recipe Requirements</h1>
+    <p class="mb-0 text-white-50">Ingredients required for each menu item</p>
+</div>
+
+<div class="container">
     {% if user.is_authenticated %}
-        <a href="{% url 'create-recipe_requirement' %}"><button class="btn btn-primary">Add a new Recipe</button></a>
+    <div class="text-center mb-4">
+        <a href="{% url 'create-recipe_requirement' %}" class="btn btn-success btn-lg">
+            <i class="bi bi-plus-circle-fill mr-1"></i>Add Recipe Requirement
+        </a>
+    </div>
+    {% endif %}
+
+    {% if recipe_requirements %}
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="app-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Menu Item</th>
+                            <th>Ingredient</th>
+                            <th>Quantity Required</th>
+                            {% if user.is_authenticated %}
+                            <th class="text-center">Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recipe_requirements %}
+                        <tr>
+                            <td class="text-muted">{{ item.id }}</td>
+                            <td><strong>{{ item.menu_item.title }}</strong></td>
+                            <td>{{ item.ingredient.name }}</td>
+                            <td>
+                                {{ item.quantity }} {{ item.ingredient.unit }}
+                                {% if not item.enough %}
+                                <span class="badge-unavailable ml-1">Insufficient</span>
+                                {% endif %}
+                            </td>
+                            {% if user.is_authenticated %}
+                            <td class="text-center">
+                                <a href="{% url 'update-recipe_requirement' item.id %}" class="btn btn-sm btn-outline-primary mr-1">
+                                    <i class="bi bi-pencil-fill"></i> Edit
+                                </a>
+                                <a href="{% url 'delete-recipe_requirement' item.id %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash-fill"></i> Delete
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <h5>No recipe requirements yet</h5>
+        {% if user.is_authenticated %}
+        <p class="text-muted">Add requirements to link ingredients with your menu items.</p>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
-<div class='row justify-content-center'>
-    <div class='col-md-6'>
-    <table class="table table-light" style="text-align:center">
-        <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Menu</th>
-              <th scope="col">Ingredient</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Edit</th>
-              <th scope="col">Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-        {% for item in recipe_requirements %}
-        <tr>
-            <th scope="row">{{item.id}}</th>
-            <td>{{ item}}</td>
-            <td>{{ item.quantity }} {{item.ingredient.unit}}</td>
-            <td>{{ item.ingredient }}</td>
-            <td><a href="{% url 'update-recipe_requirement' item.id %}"><button class="btn btn-primary">Update</button></a></td>
-            <td><a href="{% url 'delete-recipe_requirement' item.id %}"><button class="btn btn-danger">Delete</button></a></td>
-        </tr>
-
-        {% endfor %}
-    </tbody>
-    </table>
-</div>
-</div>
-</div>
-{% endblock  %}
+{% endblock %}
